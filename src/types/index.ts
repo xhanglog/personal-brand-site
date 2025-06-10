@@ -2,20 +2,17 @@
 
 export interface Project {
   id: string;
-  name: string;
+  title: string;
+  description: string;
   slug: string;
-  description?: string;
-  shortDescription: string;
-  thumbnail: string;
-  technologies: string[];
+  coverImage: string;
+  demoUrl?: string;
+  sourceUrl?: string;
+  tags: string[];
   category: string;
-  liveUrl?: string;
-  sourceCodeUrl?: string;
-  status: string;
-  featured?: boolean;
-  order?: number;
-  updatedAt?: string;
-  content?: string;
+  featured: boolean;
+  publishedAt: string;
+  content?: any;
 }
 
 export interface BlogPost {
@@ -23,13 +20,13 @@ export interface BlogPost {
   title: string;
   slug: string;
   excerpt: string;
-  date: string;
   coverImage: string;
   tags: string[];
-  status: string;
-  updatedAt?: string;
-  content?: string;
+  publishedAt: string;
+  content?: any;
 }
+
+export type ProjectCategory = 'all' | 'web' | 'mobile' | 'design' | 'other';
 
 // UI 相关类型
 

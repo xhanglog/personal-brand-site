@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 type SkillCategory = 'frontend' | 'backend' | 'design' | 'tools';
 
@@ -52,13 +53,52 @@ export default function Skills() {
   ];
   
   const filteredSkills = skills.filter(skill => skill.category === activeCategory);
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
+  const barVariants = {
+    hidden: { width: 0 },
+    show: (level: number) => ({
+      width: `${level}%`,
+      transition: { 
+        duration: 1.5, 
+        ease: [0.25, 0.1, 0.25, 1.0],
+        delay: 0.5
+      }
+    })
+  };
   
   return (
-    <div className="space-y-8">
+    <motion.div 
+      className="space-y-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2">
-        {categories.map(category => (
-          <button
+      <motion.div 
+        className="flex flex-wrap gap-2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        {categories.map((category, index) => (
+          <motion.button
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
             className={`px-4 py-2 rounded-md transition-colors ${
@@ -66,29 +106,59 @@ export default function Skills() {
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
             }`}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 + (index * 0.1) }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {category.label}
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
       
       {/* Skill Bars */}
-      <div className="space-y-4">
-        {filteredSkills.map(skill => (
-          <div key={skill.name} className="space-y-2">
+      <motion.div 
+        className="space-y-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        key={activeCategory} // This forces re-render of animation when category changes
+      >
+        {filteredSkills.map((skill, index) => (
+          <motion.div 
+            key={skill.name} 
+            className="space-y-2"
+            variants={itemVariants}
+          >
             <div className="flex justify-between">
-              <span className="font-medium">{skill.name}</span>
-              <span className="text-sm">{skill.level}%</span>
+              <motion.span 
+                className="font-medium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 * index }}
+              >
+                {skill.name}
+              </motion.span>
+              <motion.span 
+                className="text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 * index }}
+              >
+                {skill.level}%
+              </motion.span>
             </div>
             <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
-              <div 
-                className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${skill.level}%` }}
-              ></div>
+              <motion.div 
+                className="h-full bg-blue-600 rounded-full"
+                variants={barVariants}
+                custom={skill.level}
+              ></motion.div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 } 

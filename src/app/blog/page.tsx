@@ -94,11 +94,9 @@ export default async function BlogPage() {
     if (notionPosts && notionPosts.length > 0) {
       blogPosts = notionPosts;
     } else {
-      console.log('Using sample blog post data');
       blogPosts = sampleBlogPosts;
     }
   } catch (error) {
-    console.error('Error fetching blog posts from Notion:', error);
     blogPosts = sampleBlogPosts;
   }
   

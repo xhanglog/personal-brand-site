@@ -21,7 +21,7 @@ function transformProjectData(item: any): Project {
     id: item.id,
     title: properties['Project Name']?.title[0]?.plain_text || 'Untitled Project',
     description: properties['Description']?.rich_text[0]?.plain_text || '',
-    slug: properties.Slug?.rich_text[0]?.plain_text || item.id,
+    slug: properties['slug']?.rich_text[0]?.plain_text || item.id,
     coverImage: properties['Thumbnail']?.files[0]?.file?.url || properties['Thumbnail']?.files[0]?.external?.url || '',
     demoUrl: properties['Live URL']?.url || '',
     sourceUrl: properties['Source Code URL']?.url || '',
@@ -40,7 +40,7 @@ function transformBlogData(item: any): BlogPost {
   return {
     id: item.id,
     title: properties['Title']?.title[0]?.plain_text || 'Untitled Post',
-    slug: properties.Slug?.rich_text[0]?.plain_text || item.id,
+    slug: properties['slug']?.rich_text[0]?.plain_text || item.id,
     excerpt: properties['Excerpt']?.rich_text[0]?.plain_text || '',
     coverImage: properties['Cover Image']?.files[0]?.file?.url || properties['Cover Image']?.files[0]?.external?.url || '',
     tags: properties['Tags']?.multi_select.map((tag: any) => tag.name) || [],
@@ -89,7 +89,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     const response = await notion.databases.query({
       database_id: projectsDatabaseId,
       filter: {
-        property: 'Slug',
+        property: 'slug',
         rich_text: {
           equals: slug,
         },
@@ -191,7 +191,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
     const response = await notion.databases.query({
       database_id: blogDatabaseId,
       filter: {
-        property: 'Slug',
+        property: 'slug',
         rich_text: {
           equals: slug,
         },

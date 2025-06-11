@@ -91,20 +91,40 @@ const sampleProjects: Project[] = [
   },
 ];
 
+// 定义状态类型
+type FetchStatus = 'pending' | 'fetching' | 'completed' | 'no-data' | 'error';
+
 export default async function ProjectsPage() {
   // 尝试从Notion获取项目数据，如果失败则使用示例数据
   let projects: Project[] = [];
+  let debugInfo = {
+    status: 'pending' as FetchStatus,
+    error: null as string | null,
+    databaseId: process.env.NOTION_PROJECTS_DATABASE_ID || 'Not configured',
+    apiKeyConfigured: !!process.env.NOTION_API_KEY,
+    projectsCount: 0
+  };
   
   try {
+    console.log('Attempting to fetch projects from Notion...');
+    debugInfo.status = 'fetching';
+    
     const notionProjects = await getAllProjects();
+    debugInfo.status = 'completed';
+    debugInfo.projectsCount = notionProjects.length;
+    
     if (notionProjects && notionProjects.length > 0) {
+      console.log(`Successfully fetched ${notionProjects.length} projects from Notion`);
       projects = notionProjects;
     } else {
-      console.log('Using sample project data');
+      console.log('No projects found in Notion, using sample data');
+      debugInfo.status = 'no-data';
       projects = sampleProjects;
     }
   } catch (error) {
     console.error('Error fetching projects from Notion:', error);
+    debugInfo.status = 'error';
+    debugInfo.error = error instanceof Error ? error.message : String(error);
     projects = sampleProjects;
   }
   
@@ -113,6 +133,24 @@ export default async function ProjectsPage() {
       <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center">My Projects</h1>
       
       <div className="max-w-6xl mx-auto">
+        {/* 调试信息部分 */}
+        <div className="mb-8 p-4 bg-gray-100 rounded-lg">
+          <h2 className="text-xl font-semibold mb-2">API Debug Info</h2>
+          <pre className="text-sm bg-white p-3 rounded border overflow-auto">
+            {JSON.stringify({
+              status: debugInfo.status,
+              error: debugInfo.error,
+              databaseId: debugInfo.databaseId ? `${debugInfo.databaseId.substring(0, 5)}...` : 'Not configured',
+              apiKeyConfigured: debugInfo.apiKeyConfigured,
+              projectsCount: debugInfo.projectsCount,
+              environmentVars: {
+                NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'Not configured',
+                NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME || 'Not configured',
+              }
+            }, null, 2)}
+          </pre>
+        </div>
+        
         <div className="mb-8">
           <ProjectFilters />
         </div>

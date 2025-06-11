@@ -19,16 +19,16 @@ function transformProjectData(item: any): Project {
   
   return {
     id: item.id,
-    title: properties.Title?.title[0]?.plain_text || 'Untitled Project',
-    description: properties.Description?.rich_text[0]?.plain_text || '',
+    title: properties['Project Name']?.title[0]?.plain_text || 'Untitled Project',
+    description: properties['Description']?.rich_text[0]?.plain_text || '',
     slug: properties.Slug?.rich_text[0]?.plain_text || item.id,
-    coverImage: properties.CoverImage?.files[0]?.file?.url || properties.CoverImage?.files[0]?.external?.url || '',
-    demoUrl: properties.DemoURL?.url || '',
-    sourceUrl: properties.SourceURL?.url || '',
-    tags: properties.Tags?.multi_select.map((tag: any) => tag.name) || [],
-    category: properties.Category?.select?.name || 'Other',
-    featured: properties.Featured?.checkbox || false,
-    publishedAt: properties.PublishedAt?.date?.start || item.created_time,
+    coverImage: properties['Thumbnail']?.files[0]?.file?.url || properties['Thumbnail']?.files[0]?.external?.url || '',
+    demoUrl: properties['Live URL']?.url || '',
+    sourceUrl: properties['Source Code URL']?.url || '',
+    tags: properties['Technologies']?.multi_select.map((tag: any) => tag.name) || [],
+    category: properties['Category']?.select?.name || 'Other',
+    featured: properties['Status']?.select?.name === 'Published' || false,
+    publishedAt: properties['Created']?.date?.start || item.created_time,
     content: null, // Detailed content is fetched separately
   };
 }
@@ -39,12 +39,12 @@ function transformBlogData(item: any): BlogPost {
   
   return {
     id: item.id,
-    title: properties.Title?.title[0]?.plain_text || 'Untitled Post',
+    title: properties['Title']?.title[0]?.plain_text || 'Untitled Post',
     slug: properties.Slug?.rich_text[0]?.plain_text || item.id,
-    excerpt: properties.Excerpt?.rich_text[0]?.plain_text || '',
-    coverImage: properties.CoverImage?.files[0]?.file?.url || properties.CoverImage?.files[0]?.external?.url || '',
-    tags: properties.Tags?.multi_select.map((tag: any) => tag.name) || [],
-    publishedAt: properties.PublishedAt?.date?.start || item.created_time,
+    excerpt: properties['Excerpt']?.rich_text[0]?.plain_text || '',
+    coverImage: properties['Cover Image']?.files[0]?.file?.url || properties['Cover Image']?.files[0]?.external?.url || '',
+    tags: properties['Tags']?.multi_select.map((tag: any) => tag.name) || [],
+    publishedAt: properties['Published Date']?.date?.start || item.created_time,
     content: null, // Detailed content is fetched separately
   };
 }
@@ -63,7 +63,7 @@ export async function getAllProjects(): Promise<Project[]> {
       database_id: projectsDatabaseId,
       sorts: [
         {
-          property: 'PublishedAt',
+          timestamp: 'created_time',
           direction: 'descending',
         },
       ],
@@ -130,14 +130,14 @@ export async function getFeaturedProjects(count: number = 3): Promise<Project[]>
     const response = await notion.databases.query({
       database_id: projectsDatabaseId,
       filter: {
-        property: 'Featured',
-        checkbox: {
-          equals: true,
+        property: 'Status',
+        select: {
+          equals: 'Published',
         },
       },
       sorts: [
         {
-          property: 'PublishedAt',
+          timestamp: 'created_time',
           direction: 'descending',
         },
       ],
@@ -165,7 +165,7 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
       database_id: blogDatabaseId,
       sorts: [
         {
-          property: 'PublishedAt',
+          timestamp: 'created_time',
           direction: 'descending',
         },
       ],
@@ -231,9 +231,15 @@ export async function getRecentBlogPosts(count: number = 3): Promise<BlogPost[]>
   try {
     const response = await notion.databases.query({
       database_id: blogDatabaseId,
+      filter: {
+        property: 'Status',
+        select: {
+          equals: 'Published',
+        },
+      },
       sorts: [
         {
-          property: 'PublishedAt',
+          timestamp: 'created_time',
           direction: 'descending',
         },
       ],

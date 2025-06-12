@@ -4,13 +4,10 @@ import { getProjectBySlug } from '@/lib/notion';
 // 缓存控制常量
 const CACHE_MAX_AGE = 60 * 30; // 30分钟缓存
 
-interface RouteParams {
-  params: {
-    slug: string;
-  };
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
   try {
     const { slug } = params;
     

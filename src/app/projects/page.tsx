@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import ProjectGrid from '@/components/projects/ProjectGrid';
 import ProjectFilters from '@/components/projects/ProjectFilters';
 import { getAllProjects } from '@/lib/notion';
@@ -91,6 +92,11 @@ const sampleProjects: Project[] = [
   },
 ];
 
+// 加载状态的占位组件
+function LoadingFallback() {
+  return <div className="h-24 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-md mb-8"></div>;
+}
+
 export default async function ProjectsPage() {
   // 尝试从Notion获取项目数据，如果失败则使用示例数据
   let projects: Project[] = [];
@@ -108,15 +114,36 @@ export default async function ProjectsPage() {
   }
   
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center">My Projects</h1>
+    <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+      {/* 装饰元素 */}
+      <div className="absolute top-20 left-0 w-full h-[500px] overflow-hidden -z-10 opacity-5">
+        <div className="absolute -top-[350px] -left-[100px] w-[600px] h-[600px] rounded-full bg-blue-400"></div>
+        <div className="absolute top-[100px] -right-[300px] w-[600px] h-[600px] rounded-full bg-teal-400"></div>
+      </div>
       
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <ProjectFilters />
+      <div className="container mx-auto px-4 py-12">
+        {/* 标题部分 */}
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500">
+            My Projects
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Explore my portfolio of projects spanning web development, mobile apps, and UI/UX design. 
+            Each project showcases different skills and technologies.
+          </p>
         </div>
         
-        <ProjectGrid projects={projects} />
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <Suspense fallback={<LoadingFallback />}>
+              <ProjectFilters />
+            </Suspense>
+          </div>
+          
+          <Suspense fallback={<LoadingFallback />}>
+            <ProjectGrid projects={projects} />
+          </Suspense>
+        </div>
       </div>
     </main>
   );

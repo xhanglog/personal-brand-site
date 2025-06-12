@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import BlogGrid from '@/components/blog/BlogGrid';
 import BlogFilters from '@/components/blog/BlogFilters';
 import { getAllBlogPosts } from '@/lib/notion';
@@ -85,6 +86,11 @@ const sampleBlogPosts: BlogPost[] = [
   },
 ];
 
+// 用于加载状态的占位组件
+function LoadingFallback() {
+  return <div className="h-64 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-md"></div>;
+}
+
 export default async function BlogPage() {
   // 尝试从Notion获取博客数据，如果失败则使用示例数据
   let blogPosts: BlogPost[] = [];
@@ -106,10 +112,14 @@ export default async function BlogPage() {
       
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <BlogFilters />
+          <Suspense fallback={<LoadingFallback />}>
+            <BlogFilters />
+          </Suspense>
         </div>
         
-        <BlogGrid posts={blogPosts} />
+        <Suspense fallback={<LoadingFallback />}>
+          <BlogGrid posts={blogPosts} />
+        </Suspense>
       </div>
     </main>
   );
